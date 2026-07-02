@@ -11,9 +11,11 @@ create table if not exists public.providence_log (
   energy_level int default 0,
   gym_count int default 0,
   instant_grat_minutes int default 0,
+  pages_read int default 0,
   content_created boolean default false,
   reflection_done boolean default false,
   good_routine boolean default false,
+  client_delivery_done boolean default false,
   brain_dump text default '',
   created_at timestamptz default now()
 );

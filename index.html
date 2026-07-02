@@ -32,7 +32,7 @@ h1{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:.34em;
 .sub{color:var(--mut);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;margin-top:7px;text-indent:.18em}
 .rule{width:56px;height:1px;background:linear-gradient(90deg,transparent,var(--champ-dim),transparent);margin:16px auto 0}
 
-.date{width:100%;background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);color:var(--txt);border-radius:16px;padding:13px;font-size:15px;margin-bottom:16px;text-align:center;color-scheme:dark;font-family:var(--sans);transition:border-color .3s;animation:rise .7s .06s cubic-bezier(.2,.7,.2,1) both}
+.date{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;width:100%;background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);color:var(--txt);border-radius:16px;padding:13px;font-size:15px;margin-bottom:16px;text-align:center;color-scheme:dark;font-family:var(--sans);transition:border-color .3s;animation:rise .7s .06s cubic-bezier(.2,.7,.2,1) both}
 .grp{background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);border-radius:20px;padding:6px 18px 4px;margin-bottom:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 12px 34px rgba(0,0,0,.35)}
 .grp:nth-of-type(1){animation:rise .7s .12s cubic-bezier(.2,.7,.2,1) both}
 .grp:nth-of-type(2){animation:rise .7s .18s cubic-bezier(.2,.7,.2,1) both}
@@ -55,6 +55,7 @@ h1{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:.34em;
 .tgl:checked::after{left:24px;background:var(--champ);box-shadow:0 0 10px var(--champ-glow)}
 textarea{width:100%;min-height:112px;background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);border-radius:20px;color:var(--txt);padding:16px;font-size:15px;line-height:1.55;font-family:var(--sans);resize:vertical;margin-bottom:16px;transition:border-color .3s,box-shadow .3s;animation:rise .7s .3s cubic-bezier(.2,.7,.2,1) both}
 textarea::placeholder{color:var(--mut)}
+input[type=date]::-webkit-date-and-time-value{text-align:center}
 textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow:0 0 0 3px var(--champ-glow)}
 .save{position:relative;overflow:hidden;width:100%;padding:17px;border:1px solid var(--champ-dim);border-radius:18px;background:linear-gradient(rgba(205,185,138,.13),rgba(205,185,138,.07));-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);color:var(--champ);font-size:13.5px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;text-indent:.3em;font-family:var(--sans);transition:transform .12s,background .3s;animation:rise .7s .36s cubic-bezier(.2,.7,.2,1) both}
 .save::after{content:'';position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.14),transparent);animation:sheen 4.5s ease-in-out infinite}
@@ -88,10 +89,12 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
   <div class="row"><span class="lbl">Sleep<small>hours last night</small></span><span class="step"><button data-t="sleep_hours" data-d="-0.5">−</button><input id="sleep_hours" inputmode="decimal" value="8"><button data-t="sleep_hours" data-d="0.5">+</button></span></div>
   <div class="row"><span class="lbl">Energy<small>1 to 10</small></span><span class="step"><button data-t="energy_level" data-d="-1">−</button><input id="energy_level" inputmode="numeric" value="7"><button data-t="energy_level" data-d="1">+</button></span></div>
   <div class="row"><span class="lbl">Gym / training<small>sessions</small></span><span class="step"><button data-t="gym_count" data-d="-1">−</button><input id="gym_count" inputmode="numeric" value="0"><button data-t="gym_count" data-d="1">+</button></span></div>
+  <div class="row"><span class="lbl">Reading<small>pages</small></span><span class="step"><button data-t="pages_read" data-d="-5">−</button><input id="pages_read" inputmode="numeric" value="0"><button data-t="pages_read" data-d="5">+</button></span></div>
   <div class="row"><span class="lbl">Instant gratification<small>minutes wasted</small></span><span class="step"><button data-t="instant_grat_minutes" data-d="-5">−</button><input id="instant_grat_minutes" inputmode="numeric" value="0"><button data-t="instant_grat_minutes" data-d="5">+</button></span></div>
 </div>
 
 <div class="grp"><h2>Standards</h2>
+  <div class="row"><span class="lbl">Client delivery moved forward</span><input type="checkbox" class="tgl" id="client_delivery_done"></div>
   <div class="row"><span class="lbl">Content created</span><input type="checkbox" class="tgl" id="content_created"></div>
   <div class="row"><span class="lbl">Reflection done</span><input type="checkbox" class="tgl" id="reflection_done"></div>
   <div class="row"><span class="lbl">Morning routine held</span><input type="checkbox" class="tgl" id="good_routine"></div>
@@ -105,8 +108,8 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 <script>
 const URL_="https://jezlyszkgyesstczhlbo.supabase.co/rest/v1/providence_log";
 const KEY="sb_publishable_mHXn8xM3D-2hIZ_kWkxzxw_ZLTFw2ls";
-const NUM=["outreach_sent","calls_booked","deals_closed","revenue","deep_work_hours","sleep_hours","energy_level","gym_count","instant_grat_minutes"];
-const BOOL=["content_created","reflection_done","good_routine"];
+const NUM=["outreach_sent","calls_booked","deals_closed","revenue","deep_work_hours","sleep_hours","energy_level","gym_count","instant_grat_minutes","pages_read"];
+const BOOL=["content_created","reflection_done","good_routine","client_delivery_done"];
 const $=id=>document.getElementById(id);
 $("date").value=new Date().toLocaleDateString("sv-SE");
 
