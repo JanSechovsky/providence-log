@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b0b0d">
+<title>Providence Log</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b0b0d'/%3E%3Ctext x='50' y='62' font-size='46' text-anchor='middle'%3E%F0%9F%91%81%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0b0b0d;--card:#141417;--line:#232328;--gold:#d4af37;--gold-dim:#8a7223;--txt:#e8e6e0;--mut:#7a7a82;--green:#3ddc84;--red:#e05252}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,'SF Pro Text',Inter,sans-serif;padding:max(env(safe-area-inset-top),20px) 16px 40px;max-width:520px;margin:0 auto}
+header{text-align:center;margin-bottom:22px}
+.eye{font-size:40px;filter:drop-shadow(0 0 14px rgba(212,175,55,.45))}
+h1{font-size:19px;letter-spacing:.22em;font-weight:600;color:var(--gold);text-transform:uppercase;margin-top:6px}
+.sub{color:var(--mut);font-size:12px;margin-top:4px}
+.date{width:100%;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px;font-size:16px;margin-bottom:14px;text-align:center;color-scheme:dark}
+.grp{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px 14px;margin-bottom:14px}
+.grp h2{font-size:11px;letter-spacing:.18em;color:var(--gold-dim);text-transform:uppercase;padding:12px 0 4px}
+.row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:none}
+.lbl{font-size:15px}.lbl small{display:block;color:var(--mut);font-size:11px;margin-top:1px}
+.step{display:flex;align-items:center;gap:0}
+.step button{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:#1b1b1f;color:var(--gold);font-size:20px;font-weight:600}
+.step button:active{background:var(--gold);color:#000}
+.step input{width:64px;text-align:center;background:none;border:none;color:var(--txt);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.tgl{position:relative;width:52px;height:30px;appearance:none;background:#26262b;border-radius:30px;transition:.18s;border:1px solid var(--line)}
+.tgl:checked{background:var(--gold)}
+.tgl::after{content:'';position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#e8e6e0;transition:.18s}
+.tgl:checked::after{left:25px;background:#0b0b0d}
+textarea{width:100%;min-height:110px;background:var(--card);border:1px solid var(--line);border-radius:16px;color:var(--txt);padding:14px;font-size:15px;font-family:inherit;resize:vertical;margin-bottom:14px}
+textarea:focus,.date:focus{outline:none;border-color:var(--gold-dim)}
+.save{width:100%;padding:17px;border:none;border-radius:16px;background:linear-gradient(135deg,var(--gold),#b8912a);color:#0b0b0d;font-size:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.save:active{transform:scale(.98)}
+.save:disabled{opacity:.55}
+#msg{text-align:center;margin-top:14px;font-size:14px;min-height:20px}
+.ok{color:var(--green)}.err{color:var(--red)}
+</style>
+</head>
+<body>
+<header>
+  <div class="eye">👁️</div>
+  <h1>Providence Log</h1>
+  <div class="sub">The Eye sees what you did today</div>
+</header>
+
+<input type="date" id="date" class="date">
+
+<div class="grp"><h2>Business</h2>
+  <div class="row"><span class="lbl">Outreach sent<small>A-player messages</small></span><span class="step"><button data-t="outreach_sent" data-d="-1">−</button><input id="outreach_sent" inputmode="numeric" value="0"><button data-t="outreach_sent" data-d="1">+</button></span></div>
+  <div class="row"><span class="lbl">Calls booked</span><span class="step"><button data-t="calls_booked" data-d="-1">−</button><input id="calls_booked" inputmode="numeric" value="0"><button data-t="calls_booked" data-d="1">+</button></span></div>
+  <div class="row"><span class="lbl">Deals closed</span><span class="step"><button data-t="deals_closed" data-d="-1">−</button><input id="deals_closed" inputmode="numeric" value="0"><button data-t="deals_closed" data-d="1">+</button></span></div>
+  <div class="row"><span class="lbl">Revenue<small>Kč collected today</small></span><span class="step"><button data-t="revenue" data-d="-1000">−</button><input id="revenue" inputmode="numeric" value="0"><button data-t="revenue" data-d="1000">+</button></span></div>
+  <div class="row"><span class="lbl">Deep work<small>hours</small></span><span class="step"><button data-t="deep_work_hours" data-d="-0.5">−</button><input id="deep_work_hours" inputmode="decimal" value="0"><button data-t="deep_work_hours" data-d="0.5">+</button></span></div>
+</div>
+
+<div class="grp"><h2>Body & Mind</h2>
+  <div class="row"><span class="lbl">Sleep<small>hours last night</small></span><span class="step"><button data-t="sleep_hours" data-d="-0.5">−</button><input id="sleep_hours" inputmode="decimal" value="8"><button data-t="sleep_hours" data-d="0.5">+</button></span></div>
+  <div class="row"><span class="lbl">Energy<small>1 to 10</small></span><span class="step"><button data-t="energy_level" data-d="-1">−</button><input id="energy_level" inputmode="numeric" value="7"><button data-t="energy_level" data-d="1">+</button></span></div>
+  <div class="row"><span class="lbl">Gym / training<small>sessions</small></span><span class="step"><button data-t="gym_count" data-d="-1">−</button><input id="gym_count" inputmode="numeric" value="0"><button data-t="gym_count" data-d="1">+</button></span></div>
+  <div class="row"><span class="lbl">Instant gratification<small>minutes wasted</small></span><span class="step"><button data-t="instant_grat_minutes" data-d="-5">−</button><input id="instant_grat_minutes" inputmode="numeric" value="0"><button data-t="instant_grat_minutes" data-d="5">+</button></span></div>
+</div>
+
+<div class="grp"><h2>Standards</h2>
+  <div class="row"><span class="lbl">Content created</span><input type="checkbox" class="tgl" id="content_created"></div>
+  <div class="row"><span class="lbl">Reflection done</span><input type="checkbox" class="tgl" id="reflection_done"></div>
+  <div class="row"><span class="lbl">Morning routine held</span><input type="checkbox" class="tgl" id="good_routine"></div>
+</div>
+
+<textarea id="brain_dump" placeholder="Brain dump — wins, losses, lessons, what's on your mind. The Eye reads this tomorrow at 5:00."></textarea>
+
+<button class="save" id="save">Log the day 👁️</button>
+<div id="msg"></div>
+
+<script>
+const URL_="https://jezlyszkgyesstczhlbo.supabase.co/rest/v1/providence_log";
+const KEY="sb_publishable_mHXn8xM3D-2hIZ_kWkxzxw_ZLTFw2ls";
+const NUM=["outreach_sent","calls_booked","deals_closed","revenue","deep_work_hours","sleep_hours","energy_level","gym_count","instant_grat_minutes"];
+const BOOL=["content_created","reflection_done","good_routine"];
+const $=id=>document.getElementById(id);
+$("date").value=new Date().toLocaleDateString("sv-SE");
+
+// steppers
+document.querySelectorAll(".step button").forEach(b=>b.addEventListener("click",()=>{
+  const i=$(b.dataset.t),d=parseFloat(b.dataset.d);
+  let v=Math.max(0,(parseFloat(i.value)||0)+d);
+  if(b.dataset.t==="energy_level")v=Math.min(10,Math.max(1,v));
+  i.value=(Math.round(v*10)/10).toString();draft();
+}));
+
+// draft persistence
+function draft(){const o={};NUM.forEach(k=>o[k]=$(k).value);BOOL.forEach(k=>o[k]=$(k).checked);o.brain_dump=$("brain_dump").value;o.date=$("date").value;localStorage.setItem("pl_draft",JSON.stringify(o));}
+document.querySelectorAll("input,textarea").forEach(e=>e.addEventListener("input",draft));
+try{const d=JSON.parse(localStorage.getItem("pl_draft"));if(d&&d.date===$("date").value){NUM.forEach(k=>{if(d[k]!=null)$(k).value=d[k]});BOOL.forEach(k=>$(k).checked=!!d[k]);$("brain_dump").value=d.brain_dump||"";}}catch(e){}
+
+$("save").addEventListener("click",async()=>{
+  const btn=$("save"),msg=$("msg");
+  const row={date:$("date").value,brain_dump:$("brain_dump").value.trim()};
+  NUM.forEach(k=>row[k]=parseFloat($(k).value)||0);
+  BOOL.forEach(k=>row[k]=$(k).checked);
+  btn.disabled=true;msg.textContent="Sending to the Eye…";msg.className="";
+  try{
+    const r=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{
+      apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",
+      Prefer:"resolution=merge-duplicates"},body:JSON.stringify(row)});
+    if(!r.ok)throw new Error(await r.text());
+    msg.textContent="👁️ The Eye has seen your day. Logged.";msg.className="ok";
+    localStorage.removeItem("pl_draft");
+  }catch(e){
+    msg.textContent="Failed: "+e.message.slice(0,120);msg.className="err";
+    localStorage.setItem("pl_pending",JSON.stringify(row));
+  }
+  btn.disabled=false;
+});
+// retry pending on load
+(async()=>{const p=localStorage.getItem("pl_pending");if(!p)return;
+  try{const r=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",Prefer:"resolution=merge-duplicates"},body:p});
+  if(r.ok){localStorage.removeItem("pl_pending");$("msg").textContent="👁️ Pending log delivered.";$("msg").className="ok";}}catch(e){}})();
+</script>
+</body>
+</html>
