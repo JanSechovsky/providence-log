@@ -5,45 +5,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0b0b0d">
+<meta name="theme-color" content="#0a0a0c">
 <title>Providence Log</title>
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230b0b0d'/%3E%3Ctext x='50' y='62' font-size='46' text-anchor='middle'%3E%F0%9F%91%81%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a0a0c'/%3E%3Ctext x='50' y='62' font-size='46' text-anchor='middle'%3E%F0%9F%91%81%3C/text%3E%3C/svg%3E">
 <style>
-:root{--bg:#0b0b0d;--card:#141417;--line:#232328;--gold:#d4af37;--gold-dim:#8a7223;--txt:#e8e6e0;--mut:#7a7a82;--green:#3ddc84;--red:#e05252}
+:root{
+  --bg:#0a0a0c;--glass:rgba(255,255,255,.045);--glass-hi:rgba(255,255,255,.08);
+  --line:rgba(255,255,255,.07);--line-soft:rgba(255,255,255,.05);
+  --champ:#cdb98a;--champ-dim:rgba(205,185,138,.55);--champ-glow:rgba(205,185,138,.16);
+  --txt:#eceae4;--mut:rgba(236,234,228,.42);
+  --serif:ui-serif,'New York',Georgia,serif;--sans:-apple-system,'SF Pro Text',Inter,sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--txt);font-family:-apple-system,'SF Pro Text',Inter,sans-serif;padding:max(env(safe-area-inset-top),20px) 16px 40px;max-width:520px;margin:0 auto}
-header{text-align:center;margin-bottom:22px}
-.eye{font-size:40px;filter:drop-shadow(0 0 14px rgba(212,175,55,.45))}
-h1{font-size:19px;letter-spacing:.22em;font-weight:600;color:var(--gold);text-transform:uppercase;margin-top:6px}
-.sub{color:var(--mut);font-size:12px;margin-top:4px}
-.date{width:100%;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px;font-size:16px;margin-bottom:14px;text-align:center;color-scheme:dark}
-.grp{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px 14px;margin-bottom:14px}
-.grp h2{font-size:11px;letter-spacing:.18em;color:var(--gold-dim);text-transform:uppercase;padding:12px 0 4px}
-.row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);padding:max(env(safe-area-inset-top),24px) 18px 48px;max-width:520px;margin:0 auto;overflow-x:hidden}
+/* ambient orbs behind the glass */
+.orb{position:fixed;border-radius:50%;filter:blur(70px);pointer-events:none;z-index:-1;opacity:.6}
+.orb.a{width:340px;height:340px;top:-120px;right:-100px;background:radial-gradient(circle,rgba(205,185,138,.14),transparent 70%);animation:drift 26s ease-in-out infinite alternate}
+.orb.b{width:300px;height:300px;bottom:6%;left:-140px;background:radial-gradient(circle,rgba(120,110,90,.10),transparent 70%);animation:drift 34s ease-in-out infinite alternate-reverse}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,30px) scale(1.12)}}
+
+header{text-align:center;margin-bottom:26px;animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+.eye{font-size:34px;display:inline-block;filter:drop-shadow(0 0 18px var(--champ-glow));transition:filter .6s,transform .6s}
+.eye.awake{filter:drop-shadow(0 0 30px rgba(205,185,138,.55));transform:scale(1.12)}
+h1{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:.34em;text-transform:uppercase;color:var(--champ);margin-top:10px;text-indent:.34em}
+.sub{color:var(--mut);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;margin-top:7px;text-indent:.18em}
+.rule{width:56px;height:1px;background:linear-gradient(90deg,transparent,var(--champ-dim),transparent);margin:16px auto 0}
+
+.date{width:100%;background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);color:var(--txt);border-radius:16px;padding:13px;font-size:15px;margin-bottom:16px;text-align:center;color-scheme:dark;font-family:var(--sans);transition:border-color .3s;animation:rise .7s .06s cubic-bezier(.2,.7,.2,1) both}
+.grp{background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);border-radius:20px;padding:6px 18px 4px;margin-bottom:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 12px 34px rgba(0,0,0,.35)}
+.grp:nth-of-type(1){animation:rise .7s .12s cubic-bezier(.2,.7,.2,1) both}
+.grp:nth-of-type(2){animation:rise .7s .18s cubic-bezier(.2,.7,.2,1) both}
+.grp:nth-of-type(3){animation:rise .7s .24s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.grp h2{font-family:var(--serif);font-size:11px;letter-spacing:.3em;color:var(--champ-dim);text-transform:uppercase;padding:14px 0 6px;font-weight:500}
+.row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line-soft)}
 .row:last-child{border-bottom:none}
-.lbl{font-size:15px}.lbl small{display:block;color:var(--mut);font-size:11px;margin-top:1px}
-.step{display:flex;align-items:center;gap:0}
-.step button{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:#1b1b1f;color:var(--gold);font-size:20px;font-weight:600}
-.step button:active{background:var(--gold);color:#000}
-.step input{width:64px;text-align:center;background:none;border:none;color:var(--txt);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
-.tgl{position:relative;width:52px;height:30px;appearance:none;background:#26262b;border-radius:30px;transition:.18s;border:1px solid var(--line)}
-.tgl:checked{background:var(--gold)}
-.tgl::after{content:'';position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#e8e6e0;transition:.18s}
-.tgl:checked::after{left:25px;background:#0b0b0d}
-textarea{width:100%;min-height:110px;background:var(--card);border:1px solid var(--line);border-radius:16px;color:var(--txt);padding:14px;font-size:15px;font-family:inherit;resize:vertical;margin-bottom:14px}
-textarea:focus,.date:focus{outline:none;border-color:var(--gold-dim)}
-.save{width:100%;padding:17px;border:none;border-radius:16px;background:linear-gradient(135deg,var(--gold),#b8912a);color:#0b0b0d;font-size:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
-.save:active{transform:scale(.98)}
-.save:disabled{opacity:.55}
-#msg{text-align:center;margin-top:14px;font-size:14px;min-height:20px}
-.ok{color:var(--green)}.err{color:var(--red)}
+.lbl{font-size:14.5px;font-weight:400;letter-spacing:.01em}
+.lbl small{display:block;color:var(--mut);font-size:11px;margin-top:2px;letter-spacing:.03em}
+.step{display:flex;align-items:center;gap:2px}
+.step button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--champ);font-size:18px;font-weight:300;transition:transform .12s,background .2s,border-color .2s;font-family:var(--sans)}
+.step button:active{transform:scale(.86);background:var(--champ);color:#0a0a0c;border-color:var(--champ)}
+.step input{width:62px;text-align:center;background:none;border:none;color:var(--txt);font-size:19px;font-weight:500;font-variant-numeric:tabular-nums;font-family:var(--serif)}
+.step input.bump{animation:bump .28s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes bump{40%{transform:scale(1.28);color:var(--champ)}}
+.tgl{position:relative;width:50px;height:29px;appearance:none;background:rgba(255,255,255,.06);border-radius:30px;transition:.25s;border:1px solid var(--line)}
+.tgl:checked{background:var(--champ-glow);border-color:var(--champ-dim)}
+.tgl::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:rgba(236,234,228,.85);transition:.25s cubic-bezier(.3,.9,.3,1.2)}
+.tgl:checked::after{left:24px;background:var(--champ);box-shadow:0 0 10px var(--champ-glow)}
+textarea{width:100%;min-height:112px;background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);border-radius:20px;color:var(--txt);padding:16px;font-size:15px;line-height:1.55;font-family:var(--sans);resize:vertical;margin-bottom:16px;transition:border-color .3s,box-shadow .3s;animation:rise .7s .3s cubic-bezier(.2,.7,.2,1) both}
+textarea::placeholder{color:var(--mut)}
+textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow:0 0 0 3px var(--champ-glow)}
+.save{position:relative;overflow:hidden;width:100%;padding:17px;border:1px solid var(--champ-dim);border-radius:18px;background:linear-gradient(rgba(205,185,138,.13),rgba(205,185,138,.07));-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);color:var(--champ);font-size:13.5px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;text-indent:.3em;font-family:var(--sans);transition:transform .12s,background .3s;animation:rise .7s .36s cubic-bezier(.2,.7,.2,1) both}
+.save::after{content:'';position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.14),transparent);animation:sheen 4.5s ease-in-out infinite}
+@keyframes sheen{0%,72%{left:-70%}100%{left:130%}}
+.save:active{transform:scale(.985)}
+.save:disabled{opacity:.5}
+#msg{text-align:center;margin-top:16px;font-size:13.5px;min-height:20px;letter-spacing:.05em;transition:opacity .5s;font-family:var(--serif);font-style:italic}
+.ok{color:var(--champ)}.err{color:#c96a6a}
 </style>
 </head>
 <body>
+<div class="orb a"></div><div class="orb b"></div>
 <header>
-  <div class="eye">👁️</div>
-  <h1>Providence Log</h1>
+  <div class="eye" id="eye">👁️</div>
+  <h1>Providence</h1>
   <div class="sub">The Eye sees what you did today</div>
+  <div class="rule"></div>
 </header>
 
 <input type="date" id="date" class="date">
@@ -56,7 +84,7 @@ textarea:focus,.date:focus{outline:none;border-color:var(--gold-dim)}
   <div class="row"><span class="lbl">Deep work<small>hours</small></span><span class="step"><button data-t="deep_work_hours" data-d="-0.5">−</button><input id="deep_work_hours" inputmode="decimal" value="0"><button data-t="deep_work_hours" data-d="0.5">+</button></span></div>
 </div>
 
-<div class="grp"><h2>Body & Mind</h2>
+<div class="grp"><h2>Body &amp; Mind</h2>
   <div class="row"><span class="lbl">Sleep<small>hours last night</small></span><span class="step"><button data-t="sleep_hours" data-d="-0.5">−</button><input id="sleep_hours" inputmode="decimal" value="8"><button data-t="sleep_hours" data-d="0.5">+</button></span></div>
   <div class="row"><span class="lbl">Energy<small>1 to 10</small></span><span class="step"><button data-t="energy_level" data-d="-1">−</button><input id="energy_level" inputmode="numeric" value="7"><button data-t="energy_level" data-d="1">+</button></span></div>
   <div class="row"><span class="lbl">Gym / training<small>sessions</small></span><span class="step"><button data-t="gym_count" data-d="-1">−</button><input id="gym_count" inputmode="numeric" value="0"><button data-t="gym_count" data-d="1">+</button></span></div>
@@ -69,9 +97,9 @@ textarea:focus,.date:focus{outline:none;border-color:var(--gold-dim)}
   <div class="row"><span class="lbl">Morning routine held</span><input type="checkbox" class="tgl" id="good_routine"></div>
 </div>
 
-<textarea id="brain_dump" placeholder="Brain dump — wins, losses, lessons, what's on your mind. The Eye reads this tomorrow at 5:00."></textarea>
+<textarea id="brain_dump" placeholder="Brain dump — wins, losses, lessons, what is on your mind. The Eye reads this tomorrow at 5:00."></textarea>
 
-<button class="save" id="save">Log the day 👁️</button>
+<button class="save" id="save">Log the day</button>
 <div id="msg"></div>
 
 <script>
@@ -82,21 +110,22 @@ const BOOL=["content_created","reflection_done","good_routine"];
 const $=id=>document.getElementById(id);
 $("date").value=new Date().toLocaleDateString("sv-SE");
 
-// steppers
 document.querySelectorAll(".step button").forEach(b=>b.addEventListener("click",()=>{
   const i=$(b.dataset.t),d=parseFloat(b.dataset.d);
   let v=Math.max(0,(parseFloat(i.value)||0)+d);
   if(b.dataset.t==="energy_level")v=Math.min(10,Math.max(1,v));
-  i.value=(Math.round(v*10)/10).toString();draft();
+  i.value=(Math.round(v*10)/10).toString();
+  i.classList.remove("bump");void i.offsetWidth;i.classList.add("bump");
+  if(navigator.vibrate)navigator.vibrate(8);
+  draft();
 }));
 
-// draft persistence
 function draft(){const o={};NUM.forEach(k=>o[k]=$(k).value);BOOL.forEach(k=>o[k]=$(k).checked);o.brain_dump=$("brain_dump").value;o.date=$("date").value;localStorage.setItem("pl_draft",JSON.stringify(o));}
 document.querySelectorAll("input,textarea").forEach(e=>e.addEventListener("input",draft));
 try{const d=JSON.parse(localStorage.getItem("pl_draft"));if(d&&d.date===$("date").value){NUM.forEach(k=>{if(d[k]!=null)$(k).value=d[k]});BOOL.forEach(k=>$(k).checked=!!d[k]);$("brain_dump").value=d.brain_dump||"";}}catch(e){}
 
 $("save").addEventListener("click",async()=>{
-  const btn=$("save"),msg=$("msg");
+  const btn=$("save"),msg=$("msg"),eye=$("eye");
   const row={date:$("date").value,brain_dump:$("brain_dump").value.trim()};
   NUM.forEach(k=>row[k]=parseFloat($(k).value)||0);
   BOOL.forEach(k=>row[k]=$(k).checked);
@@ -106,7 +135,9 @@ $("save").addEventListener("click",async()=>{
       apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",
       Prefer:"resolution=merge-duplicates"},body:JSON.stringify(row)});
     if(!r.ok)throw new Error(await r.text());
-    msg.textContent="👁️ The Eye has seen your day. Logged.";msg.className="ok";
+    msg.textContent="The Eye has seen your day.";msg.className="ok";
+    eye.classList.add("awake");setTimeout(()=>eye.classList.remove("awake"),2600);
+    if(navigator.vibrate)navigator.vibrate([12,60,12]);
     localStorage.removeItem("pl_draft");
   }catch(e){
     msg.textContent="Failed: "+e.message.slice(0,120);msg.className="err";
@@ -114,10 +145,9 @@ $("save").addEventListener("click",async()=>{
   }
   btn.disabled=false;
 });
-// retry pending on load
 (async()=>{const p=localStorage.getItem("pl_pending");if(!p)return;
   try{const r=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",Prefer:"resolution=merge-duplicates"},body:p});
-  if(r.ok){localStorage.removeItem("pl_pending");$("msg").textContent="👁️ Pending log delivered.";$("msg").className="ok";}}catch(e){}})();
+  if(r.ok){localStorage.removeItem("pl_pending");$("msg").textContent="Pending log delivered.";$("msg").className="ok";}}catch(e){}})();
 </script>
 </body>
 </html>
