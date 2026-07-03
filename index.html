@@ -88,7 +88,7 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 <div class="grp"><h2>Body &amp; Mind</h2>
   <div class="row"><span class="lbl">Sleep<small>hours last night</small></span><span class="step"><button data-t="sleep_hours" data-d="-0.5">−</button><input id="sleep_hours" inputmode="decimal" value="8"><button data-t="sleep_hours" data-d="0.5">+</button></span></div>
   <div class="row"><span class="lbl">Energy<small>1 to 10</small></span><span class="step"><button data-t="energy_level" data-d="-1">−</button><input id="energy_level" inputmode="numeric" value="7"><button data-t="energy_level" data-d="1">+</button></span></div>
-  <div class="row"><span class="lbl">Gym / training<small>sessions</small></span><span class="step"><button data-t="gym_count" data-d="-1">−</button><input id="gym_count" inputmode="numeric" value="0"><button data-t="gym_count" data-d="1">+</button></span></div>
+  <div class="row"><span class="lbl">Workout<small>quality 1 to 10 (0 = rest day)</small></span><span class="step"><button data-t="gym_count" data-d="-1">−</button><input id="gym_count" inputmode="numeric" value="0"><button data-t="gym_count" data-d="1">+</button></span></div>
   <div class="row"><span class="lbl">Reading<small>pages</small></span><span class="step"><button data-t="pages_read" data-d="-5">−</button><input id="pages_read" inputmode="numeric" value="0"><button data-t="pages_read" data-d="5">+</button></span></div>
   <div class="row"><span class="lbl">Instant gratification<small>minutes wasted</small></span><span class="step"><button data-t="instant_grat_minutes" data-d="-5">−</button><input id="instant_grat_minutes" inputmode="numeric" value="0"><button data-t="instant_grat_minutes" data-d="5">+</button></span></div>
 </div>
@@ -117,6 +117,7 @@ document.querySelectorAll(".step button").forEach(b=>b.addEventListener("click",
   const i=$(b.dataset.t),d=parseFloat(b.dataset.d);
   let v=Math.max(0,(parseFloat(i.value)||0)+d);
   if(b.dataset.t==="energy_level")v=Math.min(10,Math.max(1,v));
+  if(b.dataset.t==="gym_count")v=Math.min(10,v);
   i.value=(Math.round(v*10)/10).toString();
   i.classList.remove("bump");void i.offsetWidth;i.classList.add("bump");
   if(navigator.vibrate)navigator.vibrate(8);
