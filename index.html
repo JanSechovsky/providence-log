@@ -55,6 +55,15 @@ h1{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:.34em;
 .tgl:checked::after{left:24px;background:var(--champ);box-shadow:0 0 10px var(--champ-glow)}
 textarea{width:100%;min-height:112px;background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);border-radius:20px;color:var(--txt);padding:16px;font-size:15px;line-height:1.55;font-family:var(--sans);resize:vertical;margin-bottom:16px;transition:border-color .3s,box-shadow .3s;animation:rise .7s .3s cubic-bezier(.2,.7,.2,1) both}
 textarea::placeholder{color:var(--mut)}
+.today-goals{background:linear-gradient(rgba(205,185,138,.09),rgba(205,185,138,.03));border:1px solid var(--champ-dim);border-radius:16px;padding:14px 18px;margin-bottom:16px;animation:rise .7s .04s cubic-bezier(.2,.7,.2,1) both}
+.today-goals h3{font-family:var(--serif);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--champ);margin-bottom:8px}
+.today-goals .g{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:14.5px}
+.today-goals .g input{width:20px;height:20px;flex:0 0 auto}
+.today-goals .g.kept span{color:var(--mut);text-decoration:line-through}
+.today-goals .empty{color:var(--mut);font-size:13px;font-style:italic;font-family:var(--serif)}
+.goal-in{width:100%;background:var(--glass);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--line);border-radius:14px;color:var(--txt);padding:12px 14px;font-size:15px;font-family:var(--sans);margin-bottom:9px;transition:border-color .3s}
+.goal-in:focus{outline:none;border-color:var(--champ-dim);box-shadow:0 0 0 3px var(--champ-glow)}
+.goal-in::placeholder{color:var(--mut)}
 input[type=date]::-webkit-date-and-time-value{text-align:center}
 textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow:0 0 0 3px var(--champ-glow)}
 .save{position:relative;overflow:hidden;width:100%;padding:17px;border:1px solid var(--champ-dim);border-radius:18px;background:linear-gradient(rgba(205,185,138,.13),rgba(205,185,138,.07));-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);color:var(--champ);font-size:13.5px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;text-indent:.3em;font-family:var(--sans);transition:transform .12s,background .3s;animation:rise .7s .36s cubic-bezier(.2,.7,.2,1) both}
@@ -76,6 +85,11 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 </header>
 
 <input type="date" id="date" class="date">
+
+<div class="today-goals" id="todayGoals" style="display:none">
+  <h3>Today's intentions</h3>
+  <div id="todayGoalsList"></div>
+</div>
 
 <div class="grp"><h2>Business</h2>
   <div class="row"><span class="lbl">Outreach sent<small>A-player messages</small></span><span class="step"><button data-t="outreach_sent" data-d="-1">−</button><input id="outreach_sent" inputmode="numeric" value="0"><button data-t="outreach_sent" data-d="1">+</button></span></div>
@@ -102,6 +116,14 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 
 <textarea id="brain_dump" placeholder="Brain dump — wins, losses, lessons, what is on your mind. The Eye reads this tomorrow at 5:00."></textarea>
 
+<div class="grp"><h2>Tomorrow &middot; set your intentions</h2>
+  <div style="padding:10px 0 4px">
+    <input class="goal-in" id="goal1" placeholder="1. The one thing that must happen tomorrow">
+    <input class="goal-in" id="goal2" placeholder="2. Second intention (optional)">
+    <input class="goal-in" id="goal3" placeholder="3. Third intention (optional)">
+  </div>
+</div>
+
 <button class="save" id="save">Log the day</button>
 <div id="msg"></div>
 
@@ -112,6 +134,16 @@ const NUM=["outreach_sent","calls_booked","deals_closed","revenue","deep_work_ho
 const BOOL=["content_created","reflection_done","good_routine","client_delivery_done"];
 const $=id=>document.getElementById(id);
 $("date").value=new Date().toLocaleDateString("sv-SE");
+
+// day-lock: once a date is logged, seal the app for that day
+function lockDay(dateStr){
+  const btn=$("save"),eye=$("eye");
+  document.querySelectorAll(".step button,.tgl,textarea,#date,.goal-in,#todayGoalsList input").forEach(e=>e.disabled=true);
+  btn.disabled=true;btn.textContent="Logged — come back tomorrow";
+  eye.classList.add("awake");
+  $("msg").textContent="The Eye has seen "+dateStr+". Rest.";$("msg").className="ok";
+}
+function isLocked(dateStr){return localStorage.getItem("pl_locked_"+dateStr)==="1";}
 
 document.querySelectorAll(".step button").forEach(b=>b.addEventListener("click",()=>{
   const i=$(b.dataset.t),d=parseFloat(b.dataset.d);
@@ -133,22 +165,51 @@ $("save").addEventListener("click",async()=>{
   const row={date:$("date").value,brain_dump:$("brain_dump").value.trim()};
   NUM.forEach(k=>row[k]=parseFloat($(k).value)||0);
   BOOL.forEach(k=>row[k]=$(k).checked);
+  // record whether today's intentions were kept (checkboxes on the review card)
+  const kept=[...document.querySelectorAll("#todayGoalsList input")].map(c=>c.checked);
+  if(kept.length)row.goals_kept=kept.filter(Boolean).length+"/"+kept.length;
+  // tomorrow's intentions → written to tomorrow's own row
+  const goals=[$("goal1").value,$("goal2").value,$("goal3").value].map(s=>s.trim()).filter(Boolean);
+  const tmr=new Date($("date").value);tmr.setDate(tmr.getDate()+1);
+  const tmrRow={date:tmr.toLocaleDateString("sv-SE"),goals:goals.join("\n")};
   btn.disabled=true;msg.textContent="Sending to the Eye…";msg.className="";
   try{
     const r=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{
       apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",
       Prefer:"resolution=merge-duplicates"},body:JSON.stringify(row)});
     if(!r.ok)throw new Error(await r.text());
-    msg.textContent="The Eye has seen your day.";msg.className="ok";
-    eye.classList.add("awake");setTimeout(()=>eye.classList.remove("awake"),2600);
+    if(goals.length)await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{
+      apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",
+      Prefer:"resolution=merge-duplicates"},body:JSON.stringify(tmrRow)});
     if(navigator.vibrate)navigator.vibrate([12,60,12]);
     localStorage.removeItem("pl_draft");
+    localStorage.setItem("pl_locked_"+row.date,"1");
+    lockDay(row.date);
+    return;
   }catch(e){
     msg.textContent="Failed: "+e.message.slice(0,120);msg.className="err";
     localStorage.setItem("pl_pending",JSON.stringify(row));
+    btn.disabled=false;
   }
-  btn.disabled=false;
 });
+// on load: pull today's intentions (set last night) and show them to review + tick off
+(async()=>{
+  try{
+    const r=await fetch(URL_+"?date=eq."+$("date").value+"&select=goals",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}});
+    const rows=await r.json();
+    const goals=(rows[0]&&rows[0].goals||"").split("\n").map(s=>s.trim()).filter(Boolean);
+    const box=$("todayGoals"),list=$("todayGoalsList");
+    if(goals.length){
+      list.innerHTML=goals.map((g,i)=>`<label class="g"><input type="checkbox" data-gi="${i}"><span>${g.replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</span></label>`).join("");
+      list.querySelectorAll("input").forEach(c=>c.addEventListener("change",e=>e.target.closest(".g").classList.toggle("kept",e.target.checked)));
+    }else{
+      list.innerHTML='<div class="empty">No intentions were set last night. Set tomorrow&#39;s below.</div>';
+    }
+    box.style.display="block";
+  }catch(e){}
+})();
+// on load: if today is already logged, seal it
+if(isLocked($("date").value))lockDay($("date").value);
 (async()=>{const p=localStorage.getItem("pl_pending");if(!p)return;
   try{const r=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",Prefer:"resolution=merge-duplicates"},body:p});
   if(r.ok){localStorage.removeItem("pl_pending");$("msg").textContent="Pending log delivered.";$("msg").className="ok";}}catch(e){}})();
