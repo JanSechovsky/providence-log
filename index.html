@@ -178,9 +178,11 @@ $("save").addEventListener("click",async()=>{
       apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",
       Prefer:"resolution=merge-duplicates"},body:JSON.stringify(row)});
     if(!r.ok)throw new Error(await r.text());
-    if(goals.length)await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{
+    if(goals.length){const gr=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{
       apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",
       Prefer:"resolution=merge-duplicates"},body:JSON.stringify(tmrRow)});
+      if(!gr.ok){localStorage.setItem("pl_pending_goals",JSON.stringify(tmrRow));
+        msg.textContent="Day saved, but intentions FAILED (run the goals migration). Queued for retry.";msg.className="err";}}
     if(navigator.vibrate)navigator.vibrate([12,60,12]);
     localStorage.removeItem("pl_draft");
     localStorage.setItem("pl_locked_"+row.date,"1");
@@ -210,7 +212,10 @@ $("save").addEventListener("click",async()=>{
 })();
 // on load: if today is already logged, seal it
 if(isLocked($("date").value))lockDay($("date").value);
-(async()=>{const p=localStorage.getItem("pl_pending");if(!p)return;
+(async()=>{const pg=localStorage.getItem("pl_pending_goals");
+  if(pg){try{const r=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",Prefer:"resolution=merge-duplicates"},body:pg});
+    if(r.ok){localStorage.removeItem("pl_pending_goals");$("msg").textContent="Queued intentions delivered.";$("msg").className="ok";}}catch(e){}}
+  const p=localStorage.getItem("pl_pending");if(!p)return;
   try{const r=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",Prefer:"resolution=merge-duplicates"},body:p});
   if(r.ok){localStorage.removeItem("pl_pending");$("msg").textContent="Pending log delivered.";$("msg").className="ok";}}catch(e){}})();
 </script>
