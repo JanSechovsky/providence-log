@@ -55,6 +55,8 @@ h1{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:.34em;
 .tgl:checked::after{left:24px;background:var(--champ);box-shadow:0 0 10px var(--champ-glow)}
 textarea{width:100%;min-height:112px;background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);border:1px solid var(--line);border-radius:20px;color:var(--txt);padding:16px;font-size:15px;line-height:1.55;font-family:var(--sans);resize:vertical;margin-bottom:16px;transition:border-color .3s,box-shadow .3s;animation:rise .7s .3s cubic-bezier(.2,.7,.2,1) both}
 textarea::placeholder{color:var(--mut)}
+.hzb{font-family:var(--sans);font-size:10px;letter-spacing:.18em;color:var(--mut);background:none;border:1px solid var(--line);border-radius:100px;padding:5px 12px}
+.hzb.on{color:var(--champ);border-color:var(--champ-dim);background:var(--champ-glow)}
 .today-goals{background:linear-gradient(rgba(205,185,138,.09),rgba(205,185,138,.03));border:1px solid var(--champ-dim);border-radius:16px;padding:14px 18px;margin-bottom:16px;animation:rise .7s .04s cubic-bezier(.2,.7,.2,1) both}
 .today-goals h3{font-family:var(--serif);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--champ);margin-bottom:8px}
 .today-goals .g{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:14.5px}
@@ -115,7 +117,11 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 
 <textarea id="brain_dump" placeholder="Brain dump — wins, losses, lessons, what is on your mind. The Eye reads this tomorrow at 5:00."></textarea>
 
-<div class="grp"><h2>Tomorrow &middot; set your intentions</h2>
+<div class="grp"><h2>Intentions &middot; <span id="gtgt">tomorrow</span></h2>
+  <div style="display:flex;gap:8px;padding:4px 0 2px">
+    <button type="button" id="tgToday" class="hzb">TODAY</button>
+    <button type="button" id="tgTmr" class="hzb">TOMORROW</button>
+  </div>
   <div style="padding:10px 0 4px">
     <input class="goal-in" id="goal1" placeholder="1. The one thing that must happen tomorrow">
     <input class="goal-in" id="goal2" placeholder="2. Second intention (optional)">
@@ -133,6 +139,13 @@ const NUM=["outreach_sent","calls_booked","deals_closed","revenue","deep_work_ho
 const BOOL=["reflection_done","good_routine","client_delivery_done"];
 const $=id=>document.getElementById(id);
 $("date").value=new Date().toLocaleDateString("sv-SE");
+// intentions target: mornings default TODAY, evenings TOMORROW
+let gTarget=(new Date().getHours()<12)?"today":"tomorrow";
+function tgt(t){gTarget=t;document.getElementById("gtgt").textContent=t;
+  document.getElementById("tgToday").classList.toggle("on",t==="today");
+  document.getElementById("tgTmr").classList.toggle("on",t==="tomorrow");}
+setTimeout(()=>{document.getElementById("tgToday").onclick=()=>tgt("today");
+  document.getElementById("tgTmr").onclick=()=>tgt("tomorrow");tgt(gTarget);},0);
 
 // day-lock: once a date is logged, seal the app for that day
 function lockDay(dateStr){
@@ -167,9 +180,9 @@ $("save").addEventListener("click",async()=>{
   // record whether today's intentions were kept (checkboxes on the review card)
   const kept=[...document.querySelectorAll("#todayGoalsList input")].map(c=>c.checked);
   if(kept.length)row.goals_kept=kept.filter(Boolean).length+"/"+kept.length;
-  // tomorrow's intentions → written to tomorrow's own row
+  // intentions → today's or tomorrow's row per toggle
   const goals=[$("goal1").value,$("goal2").value,$("goal3").value].map(s=>s.trim()).filter(Boolean);
-  const tmr=new Date($("date").value);tmr.setDate(tmr.getDate()+1);
+  const tmr=new Date($("date").value);if(gTarget==="tomorrow")tmr.setDate(tmr.getDate()+1);
   const tmrRow={date:tmr.toLocaleDateString("sv-SE"),goals:goals.join("\n")};
   btn.disabled=true;msg.textContent="Sending to the Eye…";msg.className="";
   try{
