@@ -109,7 +109,6 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 
 <div class="grp"><h2>Standards</h2>
   <div class="row"><span class="lbl">Client delivery moved forward</span><input type="checkbox" class="tgl" id="client_delivery_done"></div>
-  <div class="row"><span class="lbl">Content created</span><input type="checkbox" class="tgl" id="content_created"></div>
   <div class="row"><span class="lbl">Reflection done</span><input type="checkbox" class="tgl" id="reflection_done"></div>
   <div class="row"><span class="lbl">Morning routine held</span><input type="checkbox" class="tgl" id="good_routine"></div>
 </div>
@@ -131,7 +130,7 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 const URL_="https://jezlyszkgyesstczhlbo.supabase.co/rest/v1/providence_log";
 const KEY="sb_publishable_mHXn8xM3D-2hIZ_kWkxzxw_ZLTFw2ls";
 const NUM=["outreach_sent","calls_booked","deals_closed","revenue","deep_work_hours","sleep_hours","energy_level","gym_count","instant_grat_minutes","pages_read"];
-const BOOL=["content_created","reflection_done","good_routine","client_delivery_done"];
+const BOOL=["reflection_done","good_routine","client_delivery_done"];
 const $=id=>document.getElementById(id);
 $("date").value=new Date().toLocaleDateString("sv-SE");
 
