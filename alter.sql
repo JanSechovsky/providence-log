@@ -22,3 +22,15 @@ alter table public.providence_log add column if not exists goals_kept           
 
 -- force PostgREST to refresh its schema cache (otherwise it can keep saying the column is missing)
 notify pgrst, 'reload schema';
+
+-- HOLLOW KING: rpg_events (level-ups, pacts, artifacts) — idempotent
+create table if not exists public.rpg_events (
+  id bigint generated always as identity primary key,
+  ts timestamptz default now(),
+  kind text not null,
+  payload jsonb default '{}'::jsonb
+);
+alter table public.rpg_events enable row level security;
+drop policy if exists "anon all rpg_events" on public.rpg_events;
+create policy "anon all rpg_events" on public.rpg_events for all using (true) with check (true);
+notify pgrst, 'reload schema';

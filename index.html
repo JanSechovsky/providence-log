@@ -75,6 +75,19 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 .save:disabled{opacity:.5}
 #msg{text-align:center;margin-top:16px;font-size:13.5px;min-height:20px;letter-spacing:.05em;transition:opacity .5s;font-family:var(--serif);font-style:italic}
 .ok{color:var(--champ)}.err{color:#c96a6a}
+/* ── HOLLOW KING ── */
+.hk{display:flex;justify-content:center;gap:14px;margin:12px 0 0;font-size:12px;letter-spacing:.08em;color:var(--mut);font-family:var(--serif)}
+.hk b{color:var(--champ);font-weight:600}
+.hk .hollow{color:#a05252}
+.stain{background:linear-gradient(rgba(150,40,40,.16),rgba(150,40,40,.06));border:1px solid rgba(200,90,90,.4);border-radius:16px;padding:12px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.5;animation:rise .7s .02s cubic-bezier(.2,.7,.2,1) both}
+.stain b{color:#d98c8c}
+#souls-live{text-align:center;color:var(--champ-dim);font-size:12.5px;letter-spacing:.14em;margin:0 0 12px;font-family:var(--serif);font-style:italic;min-height:17px}
+#lvlbox{display:none;margin-top:16px;text-align:center}
+#lvlbox .hzb{margin:4px;color:var(--champ);font-size:11px;padding:8px 14px}
+#youdied{position:fixed;inset:0;background:rgba(5,3,3,.97);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:99}
+#youdied h2{font-family:var(--serif);font-weight:500;font-size:42px;letter-spacing:.3em;color:#7e2b2b;text-indent:.3em;animation:died 2.6s ease-out both}
+#youdied p{color:var(--mut);margin-top:16px;font-size:12.5px;letter-spacing:.12em;text-align:center;padding:0 30px;line-height:1.6}
+@keyframes died{from{opacity:0;transform:scale(.9)}35%{opacity:1}to{opacity:1;transform:scale(1.03)}}
 </style>
 </head>
 <body>
@@ -84,7 +97,10 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
   <h1>Providence</h1>
   <div class="sub">The Eye sees what you did today</div>
   <div class="rule"></div>
+  <div class="hk" id="hk" style="display:none"></div>
 </header>
+
+<div class="stain" id="stain" style="display:none"></div>
 
 <input type="date" id="date" class="date">
 
@@ -129,9 +145,14 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
   </div>
 </div>
 
+<div id="souls-live"></div>
 <button class="save" id="save">Log the day</button>
 <div id="msg"></div>
+<div id="lvlbox"></div>
 
+<div id="youdied"><h2>YOU DIED</h2><p>An unsealed day took its toll.<br>Rest at the bonfire tonight, Unkindled.</p></div>
+
+<script src="rpg.js"></script>
 <script>
 const URL_="https://jezlyszkgyesstczhlbo.supabase.co/rest/v1/providence_log";
 const KEY="sb_publishable_mHXn8xM3D-2hIZ_kWkxzxw_ZLTFw2ls";
@@ -199,6 +220,7 @@ $("save").addEventListener("click",async()=>{
     localStorage.removeItem("pl_draft");
     localStorage.setItem("pl_locked_"+row.date,"1");
     lockDay(row.date);
+    hkAfterSeal();
     return;
   }catch(e){
     msg.textContent="Failed: "+e.message.slice(0,120);msg.className="err";
@@ -230,6 +252,58 @@ if(isLocked($("date").value))lockDay($("date").value);
   const p=localStorage.getItem("pl_pending");if(!p)return;
   try{const r=await fetch(URL_+"?on_conflict=date",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",Prefer:"resolution=merge-duplicates"},body:p});
   if(r.ok){localStorage.removeItem("pl_pending");$("msg").textContent="Pending log delivered.";$("msg").className="ok";}}catch(e){}})();
+
+// ── HOLLOW KING: souls, deaths, the bonfire ──
+const EV_URL="https://jezlyszkgyesstczhlbo.supabase.co/rest/v1/rpg_events";
+let HK_STATE=null;
+async function hkFetch(){try{
+  const h={apikey:KEY,Authorization:"Bearer "+KEY};
+  const [r1,r2]=await Promise.all([
+    fetch(URL_+"?order=date.asc&select=*",{headers:h}),
+    fetch(EV_URL+"?order=ts.asc&select=*",{headers:h})]);
+  const rows=await r1.json();const evs=r2.ok?await r2.json():[];
+  HK_STATE=HollowKing.computeState(rows,Array.isArray(evs)?evs:[],new Date());
+  return HK_STATE;
+}catch(e){return null}}
+function hkStrip(s){if(!s)return;const el=$("hk");el.style.display="flex";
+  el.innerHTML=`<span>⚗ <b>${s.banked}</b> souls</span><span>🔥 <b>${s.streak}</b> streak</span><span>Lv <b>${s.level}</b> ${s.title}</span>`
+    +(s.hollowing?`<span class="hollow">💀 ${s.hollowing}/10</span>`:"");}
+function hkLive(){if(!window.HollowKing||!HK_STATE)return;
+  const row={};NUM.forEach(k=>row[k]=parseFloat($(k).value)||0);BOOL.forEach(k=>row[k]=$(k).checked);
+  row.brain_dump=$("brain_dump").value;
+  const kept=[...document.querySelectorAll("#todayGoalsList input")];
+  if(kept.length)row.goals_kept=kept.filter(c=>c.checked).length+"/"+kept.length;
+  const got=HollowKing.soulsForRow(row,HK_STATE.stats);
+  $("souls-live").textContent=got.total>0?"⚗ "+got.total+" souls await the bonfire":"";}
+document.querySelectorAll("input,textarea").forEach(e=>e.addEventListener("input",hkLive));
+document.querySelectorAll(".step button").forEach(b=>b.addEventListener("click",()=>setTimeout(hkLive,0)));
+async function hkAfterSeal(){const s=await hkFetch();if(!s)return;hkStrip(s);$("souls-live").textContent="";
+  const afford=HollowKing.STATS.filter(st=>s.banked>=s.nextCost[st]);
+  if(!afford.length)return;
+  const box=$("lvlbox");box.style.display="block";
+  box.innerHTML='<div style="color:var(--champ-dim);font-size:11px;letter-spacing:.22em;margin-bottom:6px">RAISE A STAT AT THE BONFIRE</div>'
+    +afford.map(st=>`<button class="hzb" data-st="${st}">${st} · ${s.nextCost[st]}</button>`).join("");
+  box.querySelectorAll("button").forEach(b=>b.onclick=async()=>{b.disabled=true;
+    try{const r=await fetch(EV_URL,{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,
+      "Content-Type":"application/json",Prefer:"return=minimal"},
+      body:JSON.stringify({kind:"levelup",payload:{stat:b.dataset.st}})});
+    if(!r.ok)throw 0;
+    box.innerHTML='<div class="ok" style="font-family:var(--serif);font-style:italic">'+b.dataset.st+' raised. The build deepens. 🔥</div>';
+    if(navigator.vibrate)navigator.vibrate([10,40,10,40,30]);
+    hkFetch().then(hkStrip);}
+    catch(e){b.disabled=false;$("msg").textContent="The altar rejects you (rpg_events migration missing?)";$("msg").className="err";}});}
+(async()=>{const s=await hkFetch();if(!s)return;hkStrip(s);hkLive();
+  const lastDeaths=parseInt(localStorage.getItem("hk_deaths")||"0");
+  if(s.deaths>lastDeaths&&!s.todaySealed){const yd=$("youdied");yd.style.display="flex";
+    yd.onclick=()=>yd.style.display="none";setTimeout(()=>{yd.style.display="none"},5200);
+    if(navigator.vibrate)navigator.vibrate([60,80,60,80,120]);}
+  localStorage.setItem("hk_deaths",String(s.deaths));
+  if(s.bloodstain){const st=$("stain");st.style.display="block";
+    st.innerHTML=s.bloodstain.expired
+      ?`🩸 A bloodstain of <b>${s.bloodstain.amount} souls</b> from ${s.bloodstain.date} rots. The noon deadline has passed. Seal today so the rot spreads no further.`
+      :`🩸 <b>CORPSE RUN:</b> seal the day <b>before 12:00</b> to reclaim <b>${s.bloodstain.amount} souls</b> from ${s.bloodstain.date} (+10% valor).`;}
+  if(s.todaySealed)hkAfterSeal();
+})();
 </script>
 </body>
 </html>
