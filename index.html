@@ -83,7 +83,7 @@ textarea:focus,.date:focus{outline:none;border-color:var(--champ-dim);box-shadow
 .stain b{color:#d98c8c}
 #souls-live{text-align:center;color:var(--champ-dim);font-size:12.5px;letter-spacing:.14em;margin:0 0 12px;font-family:var(--serif);font-style:italic;min-height:17px}
 #lvlbox{display:none;margin-top:16px;text-align:center}
-#lvlbox .hzb{margin:4px;color:var(--champ);font-size:11px;padding:8px 14px}
+#lvlbox .hzb{margin:5px;color:var(--champ);font-size:13px;padding:13px 20px;border-color:var(--champ-dim);background:var(--champ-glow)}
 #youdied{position:fixed;inset:0;background:rgba(5,3,3,.97);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:99}
 #youdied h2{font-family:var(--serif);font-weight:500;font-size:42px;letter-spacing:.3em;color:#7e2b2b;text-indent:.3em;animation:died 2.6s ease-out both}
 #youdied p{color:var(--mut);margin-top:16px;font-size:12.5px;letter-spacing:.12em;text-align:center;padding:0 30px;line-height:1.6}
@@ -291,7 +291,7 @@ async function hkAfterSeal(){const s=await hkFetch();if(!s)return;hkStrip(s);$("
     box.innerHTML='<div class="ok" style="font-family:var(--serif);font-style:italic">'+b.dataset.st+' raised. The build deepens. 🔥</div>';
     if(navigator.vibrate)navigator.vibrate([10,40,10,40,30]);
     hkFetch().then(hkStrip);}
-    catch(e){b.disabled=false;$("msg").textContent="The altar rejects you (rpg_events migration missing?)";$("msg").className="err";}});}
+    catch(e){b.disabled=false;$("msg").textContent="ALTAR SEALED: the rpg_events table is missing. Ask Jarvis for the one-paste SQL.";$("msg").className="err";}});}
 (async()=>{const s=await hkFetch();if(!s)return;hkStrip(s);hkLive();
   const lastDeaths=parseInt(localStorage.getItem("hk_deaths")||"0");
   if(s.deaths>lastDeaths&&!s.todaySealed){const yd=$("youdied");yd.style.display="flex";
