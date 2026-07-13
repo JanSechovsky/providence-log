@@ -266,8 +266,9 @@ async function hkFetch(){try{
   return HK_STATE;
 }catch(e){return null}}
 function hkStrip(s){if(!s)return;const el=$("hk");el.style.display="flex";
-  el.innerHTML=`<span>⚗ <b>${s.banked}</b> souls</span><span>🔥 <b>${s.streak}</b> streak</span><span>Lv <b>${s.level}</b> ${s.title}</span>`
-    +(s.hollowing?`<span class="hollow">💀 ${s.hollowing}/10</span>`:"");}
+  el.innerHTML=`<span>⚗ <b>${s.banked}</b> souls</span><span>🔥 <b>${s.streak}</b>${s.buff>0?" (+"+Math.round(s.buff*100)+"%)":""}</span><span>Lv <b>${s.level}</b> ${s.title}</span>`
+    +(s.hollowing?`<span class="hollow">💀 ${s.hollowing}/10</span>`:"")
+    +(s.activeQuest?`<span>⌛ <b>${s.activeQuest.ready?"CLAIM":new Date(s.activeQuest.endTs).toLocaleTimeString().slice(0,5)}</b></span>`:"");}
 function hkLive(){if(!window.HollowKing||!HK_STATE)return;
   const row={};NUM.forEach(k=>row[k]=parseFloat($(k).value)||0);BOOL.forEach(k=>row[k]=$(k).checked);
   row.brain_dump=$("brain_dump").value;
